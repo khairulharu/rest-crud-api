@@ -82,7 +82,7 @@ fn handle_client(mut stream: TcpStream) {
 
 // handle post request function
 fn handle_post_request(request: &str) -> (String, String) {
-    match (get_user_request_body(request), Client::connect(DB_URL, NoTls)) {
+    match (get_user_request_body(&request), Client::connect(DB_URL, NoTls)) {
         (Ok(user), Ok(mut client)) => {
             client.execute("INSERT INTO users (name, email) VALUES ($1, $2)", &[&user.name, &user.email]).unwrap();
 
@@ -92,20 +92,50 @@ fn handle_post_request(request: &str) -> (String, String) {
     }
 }
 
-//handle get user request
+//handle get request request
 fn handle_get_request(request: &str) -> (String, String) {
-    match (get_id(request), Client::connect(DB_URL, NoTls)) {
-        (id, Ok(mut client)) => {
-            todo!("get use by id");
+    match (get_id(&request).parse::<i32>(), Client::connect(DB_URL, NoTls)) {
+        (Ok(id), Ok(mut client)) => {
+            match client.query("SELECT * FROM users WHERE id = $1", &[&id]) {
+                Ok(row) => {
+                    let user = User {
+                            id: row.get(0),
+                            name: row.get(1),
+                            email: row.get(2),
+                        };
+
+                    (OK_RESPONSE.to_string(), serde_json::to_string(&user).unwrap())
+                },
+                _ => (NOT_FOUND.to_string(), "User not found".to_string())
+            }
         },
         _ => (INTERNAL_SERVER_ERROR.to_string(), "Error".to_string())
     }
 }
 
-//method validator
-fn request_with(method: &str) -> bool {
-    
+//handle get all request
+fn handle_get_all_request(_request: &str) -> (String, String) {
+    match Client::connect(DB_URL, NoTls) {
+        Ok(mut client) => {
+            let mut users = Vec::new();
+
+            for row in client.query("SELECT * FROM users", &[]).unwrap() {
+                users.push(User {
+                    id: row.get(0),
+                    name: row.get(1),
+                    email: row.get(2),
+                });
+            }
+
+            (OK_RESPONSE.to_string(), serde_json::to_string(&users).unwrap())
+        }, 
+        _ => (INTERNAL_SERVER_ERROR.to_string(), "Error".to_string())
+    }
 }
+
+//handle put request 
+fn handle_put_request()
+
 
 //database connection
 fn set_database() -> Result<(), PostgresError> {
