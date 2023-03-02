@@ -1,6 +1,5 @@
 use postgres::Error as PostgresError;
 use postgres::{Client, NoTls};
-use serde::Serialize;
 use std::env;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -134,7 +133,25 @@ fn handle_get_all_request(_request: &str) -> (String, String) {
 }
 
 //handle put request 
-fn handle_put_request()
+fn handle_put_request(request: &str) -> (String, String) {
+    match (
+        get_id(&request).parse::<i32>(),
+        get_user_request_body(&request),
+        Client::connect(DB_URL, NoTls)
+    ) {
+        (Ok(id), Ok(user), Ok(mut client)) => {
+            client
+                .execute(
+                "UPDATE users SET name = $1, email = $2 WHERE id = $3",
+                &[&user.name, &user.email, &id])
+                .unwrap();
+
+            (OK_RESPONSE.to_string(), "User updated".to_string())
+            
+        },
+        _ => (INTERNAL_SERVER_ERROR.to_string(), "Error".to_string())
+    }
+}
 
 
 //database connection
