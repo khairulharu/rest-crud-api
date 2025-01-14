@@ -13,7 +13,7 @@ COPY . .
 RUN cargo build --release
 
 # production stage
-FROM ubuntu::22.04
+FROM ubuntu:22.04
 
 WORKDIR /usr/local/bin
 
