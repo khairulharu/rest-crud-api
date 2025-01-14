@@ -13,7 +13,7 @@ COPY . .
 RUN cargo build --release
 
 # production stage
-FROM debian:buster-slim
+FROM ubuntu::22.04
 
 WORKDIR /usr/local/bin
 
