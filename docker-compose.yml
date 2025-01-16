@@ -1,12 +1,12 @@
 services:
   rustapp:
     container_name: rustapp
-    image: khairulharu/rustapp:1.1.0
+    image: khairulharu/rustapp:1.0.0
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - DATABASE_URL = postgres://postgres:postgres@db:5432/postgres
+      environment:
+        - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
     ports:
       - '7878:7878'
     depends_on:

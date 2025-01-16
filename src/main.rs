@@ -17,6 +17,7 @@ struct User {
 
 //DATABASE_URL
 const DB_URL: &str = env!("DATABASE_URL");
+// const DB_URL: &str = "postgres://postgres:postgres@db:5432/postgres";
 
 //constant_response
 const OK_RESPONSE: &str = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n";
@@ -27,7 +28,7 @@ const INTERNAL_SERVER_ERROR: &str = "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n"
 fn main() {
     //set database
     if let Err(e) = set_database() {
-        println!("Error: {}", e);
+        println!("Error error databse: {}", e);
         return;
     }
 
